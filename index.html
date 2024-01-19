@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M0nkrus Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #202124;
+      color: #ffffff;
+    }
+
+    input, ul, li, a {
+      color: #ffffff;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      background-color: #2d2d2d;
+      border: 1px solid #444;
+      color: #ffffff;
+    }
+
+    #resultList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .resultItem {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <a href="https://github.com/dvuzu/monkrus-search" target="_blank">Github</path></svg></a>
+
+  <h1>M0nkrus Search</h1>
+
+  <input type="text" id="searchInput" placeholder="Search by title...">
+  <ul id="resultList"></ul>
+
+  <script>
+    // Elements
+    const resultList = document.getElementById('resultList');
+    const searchElement = document.getElementById('searchInput');
+
+    // Function to perform search and update the result list
+    function performSearch(data) {
+      const searchInput = searchElement.value.toLowerCase();
+
+      // Clear previous results
+      resultList.innerHTML = '';
+
+      data.forEach(item => {
+        if (item.title.toLowerCase().includes(searchInput)) {
+          const listItem = document.createElement('li');
+          listItem.classList.add('resultItem');
+
+          const link = document.createElement('a');
+          link.href = item.link;
+          link.textContent = item.title;
+
+          listItem.appendChild(link);
+          resultList.appendChild(listItem);
+        }
+      });
+    }
+
+    // Load JSON data from a file
+    async function loadJsonFile() {
+      try {
+        // Load data
+        const response = await fetch('scraped_data.json');
+        const data = await response.json();
+
+        // Load all posts
+        performSearch(data);
+
+        // Add an event listener to trigger search on input change
+        searchElement.addEventListener('input', () => performSearch(data));
+      } catch (error) {
+        alert('Error loading JSON file:', error);
+      }
+    }
+
+    // Load JSON data on page load
+    loadJsonFile();
+  </script>
+
+</body>
+</html>
