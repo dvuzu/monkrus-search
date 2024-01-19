@@ -1,0 +1,32 @@
+name: Scrape data from monkrus
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r scraper/requirements.txt
+
+    - name: Run Python Script
+      run: python scraper/main.py
+
+    - name: Commit changes
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Update scraped_data.json
