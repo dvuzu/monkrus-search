@@ -8,7 +8,7 @@ def scrape_links(url):
     """Scrapes links from a given URL, handling potential errors."""
     #print(url)
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content, "html.parser")
@@ -21,7 +21,7 @@ def scrape_links(url):
 def scrape_page(url):
     """Scrapes post data from a given URL, handling potential errors."""
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content, "html.parser")
