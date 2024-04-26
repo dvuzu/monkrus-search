@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,18 +14,32 @@
       color: #ffffff;
     }
 
-    input, ul, li, a {
+    select,
+    option,
+    input,
+    ul,
+    li,
+    a {
       color: #ffffff;
+    }
+
+    select,
+    option,
+    input {
+      background-color: #2d2d2d;
+      border: 1px solid #444;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    #settings {
+      margin-bottom: 25px;
     }
 
     #searchInput {
       width: 100%;
-      padding: 10px;
       box-sizing: border-box;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      background-color: #2d2d2d;
-      border: 1px solid #444;
       color: #ffffff;
     }
 
@@ -34,19 +49,46 @@
     }
 
     .resultItem {
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
+
 <body>
   <a href="https://github.com/dvuzu/monkrus-search" target="_blank">Github</a>
 
   <h1>M0nkrus Search</h1>
+  <hr>
 
+  <h2>List of trackers with m0nkrus torrents</h2>
+  <ul>
+    <li><a href="https://uniondht.org/tracker.php?pid=15713" target="_blank">uniondht.org</a></li>
+    <li><a href="http://rutracker.ru/tracker.php?pid=1334502" target="_blank">rutracker.ru</a></li>
+    <li><a href="https://pb.wtf/tracker/?pid=809020" target="_blank">pb.wtf</a></li>
+    <li><a href="https://nnmclub.to/forum/tracker.php?pid=192829" target="_blank">nnmclub.to</a></li>
+  </ul>
+  <hr>
+
+  <h2>Settings</h2>
+  <select id="showLinks" onchange="showLinks = !!this.value;">
+    <option value="" selected>Hide links</option>
+    <option value="1">Show links</option>
+  </select>
+  <select id="showWithoutLinks" onchange="showWithoutLinks = !!this.value;">
+    <option value="1" selected>Show posts without links</option>
+    <option value="">Don't show posts without links</option>
+  </select>
+  <hr>
+
+  <h2>Search</h2>
   <input type="text" id="searchInput" placeholder="Search by title...">
   <ul id="resultList"></ul>
 
   <script>
+    // Settings
+    var showLinks = false;
+    var showWithoutLinks = true;
+
     // Elements
     const resultList = document.getElementById('resultList');
     const searchElement = document.getElementById('searchInput');
@@ -58,18 +100,40 @@
       // Clear previous results
       resultList.innerHTML = '';
 
-      data.forEach(item => {
-        if (item.title.toLowerCase().includes(searchInput)) {
-          const listItem = document.createElement('li');
-          listItem.classList.add('resultItem');
+      // Filter data based on search term and settings
+      const filteredData = data.filter(item =>
+        item.title.toLowerCase().includes(searchInput) &&
+        ((item?.links?.length ?? 1) > 0 || showWithoutLinks)
+      );
 
-          const link = document.createElement('a');
-          link.href = item.link;
-          link.textContent = item.title;
+      // Render search results
+      filteredData.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('resultItem');
 
-          listItem.appendChild(link);
-          resultList.appendChild(listItem);
+        // Link to the post
+        const link = document.createElement('a');
+        link.href = item.link;
+        link.textContent = item.title;
+        link.target = '_blank';
+        listItem.appendChild(link);
+
+        // All links to the torrent
+        if (showLinks) {
+          const links = document.createElement('ul');
+          item?.links?.forEach(link => {
+            const linkItem = document.createElement('li');
+            const linkItemLink = document.createElement('a');
+            linkItemLink.textContent = link;
+            linkItemLink.href = link;
+            linkItemLink.target = '_blank';
+            linkItem.appendChild(linkItemLink);
+            links.appendChild(linkItem);
+          });
+          listItem.appendChild(links);
         }
+
+        resultList.appendChild(listItem);
       });
     }
 
@@ -83,10 +147,21 @@
         // Load all posts
         performSearch(data);
 
-        // Add an event listener to trigger search on input change
-        searchElement.addEventListener('input', () => performSearch(data));
+        // Add event listener for search with debounce
+        let searchTimeout;
+        searchElement.addEventListener('input', () => {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => performSearch(data), 500);
+        });
+
+        // Update results on setting changes
+        const settingsElements = [
+          document.getElementById('showLinks'),
+          document.getElementById('showWithoutLinks'),
+        ];
+        settingsElements.forEach(el => el.addEventListener('change', () => performSearch(data)));
       } catch (error) {
-        alert('Error loading JSON file:', error);
+        alert('Error loading JSON file:\n' + error);
       }
     }
 
@@ -95,4 +170,5 @@
   </script>
 
 </body>
+
 </html>
