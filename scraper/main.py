@@ -3,23 +3,27 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import json
 import threading
+import time
 
 def scrape_links(url):
-    """Scrapes links from a given URL, handling potential errors."""
-    #print(url)
+    print(url)
+    """Scrapes links from a given URL, handling errors."""
     try:
         response = requests.get(url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content, "html.parser")
-        links = [link.get('href') for link in soup.find("div", class_="post-indent").find_all('a', attrs={'rel': 'nofollow', 'target': '_blank'})]
-        return links
+        return [link.get('href') for link in soup.find("div", class_="post-indent").find_all('a', attrs={'rel': 'nofollow', 'target': '_blank'})]
     except requests.exceptions.RequestException as e:
-        print(f"Failed to retrieve {url}: {e}")
-        return []  # Return empty list on error
+        print(f"Failed to retrieve {url}: {e}, trying again in 5 seconds...")
+        time.sleep(5)
+        return scrape_links(url)
+
+def process_post(post):
+    post["links"] = scrape_links(post["link"])
 
 def scrape_page(url):
-    """Scrapes post data from a given URL, handling potential errors."""
+    """Scrapes post data and links from a given URL, handling errors."""
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -27,8 +31,7 @@ def scrape_page(url):
         soup = BeautifulSoup(response.content, "html.parser")
         post_data = []
 
-        post_titles = soup.find_all("h2", class_="post-title")
-        for post_title in post_titles:
+        for post_title in soup.find_all("h2", class_="post-title"):
             title_element = post_title.find("a")
             if title_element:
                 title = title_element.text.strip()
@@ -36,15 +39,14 @@ def scrape_page(url):
                 post_data.append({
                     "title": title,
                     "link": href,
-                    "links": []  # Placeholder for scraped links (fetched later)
+                    "links": []
                 })
 
-        # Fetch links for each post in a separate thread (potential bottleneck)
         threads = []
         for post in post_data:
-            thread = threading.Thread(target=lambda url=post['link']: post['links'].extend(scrape_links(url)))
-            thread.start()
+            thread = threading.Thread(target=process_post, args=(post,))
             threads.append(thread)
+            thread.start()
 
         # Wait for all threads to finish
         for thread in threads:
@@ -52,8 +54,10 @@ def scrape_page(url):
 
         return post_data
     except requests.exceptions.RequestException as e:
-        print(f"Failed to retrieve {url}: {e}")
-        return []  # Return empty list on error
+        print(f"Failed to retrieve {url}: {e}, trying again in 5 seconds...")
+        time.sleep(5)
+        return scrape_page(url)
+
 
 def scrape_range(start_year, start_month, end_year, end_month):
     """Scrapes data within a date range, utilizing threading."""
@@ -67,10 +71,8 @@ def scrape_range(start_year, start_month, end_year, end_month):
         url = base_url.format(current_year, current_month)
         print(url)
 
-        # Create and start a thread for scraping the page
-        thread = threading.Thread(target=lambda url=url: data.extend(scrape_page(url)))
-        thread.start()
-        thread.join()  # Wait for the thread to finish before moving on
+        # Scrape page data with links in a single thread
+        data.extend(scrape_page(url))
 
         current_month -= 1
         if current_month < 1:
@@ -78,6 +80,7 @@ def scrape_range(start_year, start_month, end_year, end_month):
             current_year -= 1
 
     return data
+
 
 # Main execution
 current_date = datetime.now()
