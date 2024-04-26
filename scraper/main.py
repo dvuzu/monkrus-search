@@ -6,7 +6,7 @@ import threading
 
 def scrape_links(url):
     """Scrapes links from a given URL, handling potential errors."""
-    print(url)
+    #print(url)
     try:
         response = requests.get(url, timeout=5)
         response.raise_for_status()
@@ -88,7 +88,7 @@ end_year, end_month = 2010, 11
 result_data = scrape_range(start_year, start_month, end_year, end_month)
 
 if result_data:
-    with open("scraped_data_new.json", "w", encoding="utf-8") as json_file:
+    with open("scraped_data.json", "w", encoding="utf-8") as json_file:
         json.dump(result_data, json_file, ensure_ascii=False, indent=2)
 
     print("Data saved successfully to scraped_data.json.")
