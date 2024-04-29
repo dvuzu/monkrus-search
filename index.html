@@ -70,18 +70,18 @@
   <hr>
 
   <h2>Settings</h2>
-  <select id="showLinks" onchange="showLinks = !!this.value;">
+  <select autocomplete="off" id="showLinks" onchange="showLinks = !!this.value;">
     <option value="" selected>Hide links</option>
     <option value="1">Show links</option>
   </select>
-  <select id="showWithoutLinks" onchange="showWithoutLinks = !!this.value;">
+  <select autocomplete="off" id="showWithoutLinks" onchange="showWithoutLinks = !!this.value;">
     <option value="1" selected>Show posts without links</option>
     <option value="">Don't show posts without links</option>
   </select>
   <hr>
 
   <h2>Search</h2>
-  <input type="text" id="searchInput" placeholder="Search by title...">
+  <input autocomplete="off" type="text" id="searchInput" placeholder="Search by title...">
   <ul id="resultList"></ul>
 
   <script>
