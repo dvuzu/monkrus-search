@@ -95,19 +95,21 @@
 
     // Function to perform search and update the result list
     function performSearch(data) {
-      const searchInput = searchElement.value.toLowerCase();
-
       // Clear previous results
       resultList.innerHTML = '';
 
-      // Filter data based on search term and settings
-      const filteredData = data.filter(item =>
-        item.title.toLowerCase().includes(searchInput) &&
-        ((item?.links?.length ?? 1) > 0 || showWithoutLinks)
-      );
+      // Get search terms
+      const searchTerms = searchElement.value.toLowerCase().trim().split(/\s+/).filter(term => term.length > 0);
+
+      // Filter data based on search terms and settings
+      data = data.filter(item => {
+        const hasLinks = !showWithoutLinks ? (item.links && item.links.length > 0) : true;
+        const matchesSearch = searchTerms.every(term => item.title.toLowerCase().includes(term));
+        return hasLinks && matchesSearch;
+      });
 
       // Render search results
-      filteredData.forEach(item => {
+      data.forEach(item => {
         const listItem = document.createElement('li');
         listItem.classList.add('resultItem');
 
