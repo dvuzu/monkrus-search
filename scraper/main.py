@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import threading
 import time
+import sys
 
 def scrape_links(url):
     """Scrapes links from a given URL, handling errors."""
@@ -80,6 +81,13 @@ def scrape_range(start_year, start_month, end_year, end_month):
 
     return data
 
+def check_up(url):
+    """Checks if website is up"""
+    return requests.head(url).status_code == 200
+
+# Check if alive
+if not check_up("https://w14.monkrus.ws"):
+    sys.exit("M0nkrus is down")
 
 # Main execution
 current_date = datetime.now()
