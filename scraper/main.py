@@ -15,7 +15,7 @@ def scrape_links(url):
         soup = BeautifulSoup(response.content, "html.parser")
         return [link.get('href') for link in soup.find("div", class_="post-indent").find_all('a', attrs={'rel': 'nofollow', 'target': '_blank'})]
     except requests.exceptions.RequestException as e:
-        print(f"Failed to retrieve {url}, trying again in 5 seconds...")
+        print(f"Failed to retrieve {url} trying again in 5 seconds...")
         time.sleep(5)
         return scrape_links(url)
 
@@ -54,7 +54,7 @@ def scrape_page(url):
 
         return post_data
     except requests.exceptions.RequestException as e:
-        print(f"Failed to retrieve {url}, trying again in 5 seconds...")
+        print(f"Failed to retrieve {url} trying again in 5 seconds...")
         time.sleep(5)
         return scrape_page(url)
 
