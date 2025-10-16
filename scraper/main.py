@@ -6,6 +6,8 @@ import threading
 import time
 import sys
 
+monkrus_url = "https://w17.monkrus.ws/"
+
 def scrape_links(url):
     """Scrapes links from a given URL, handling errors."""
     try:
@@ -61,7 +63,7 @@ def scrape_page(url):
 
 def scrape_range(start_year, start_month, end_year, end_month):
     """Scrapes data within a date range, utilizing threading."""
-    base_url = "https://w16.monkrus.ws/{}/{:02d}/"
+    base_url = monkrus_url + "{}/{:02d}/"
     data = []
 
     current_year = start_year
@@ -86,7 +88,7 @@ def check_up(url):
     return requests.head(url).status_code == 200
 
 # Check if alive
-if not check_up("https://w16.monkrus.ws"):
+if not check_up(monkrus_url):
     sys.exit("M0nkrus is down")
 
 # Main execution
