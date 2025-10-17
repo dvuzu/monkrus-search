@@ -9,6 +9,9 @@ jobs:
   scraper:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
@@ -27,6 +30,6 @@ jobs:
       run: python scraper/main.py
 
     - name: Commit changes
-      uses: stefanzweifel/git-auto-commit-action@v5
+      uses: stefanzweifel/git-auto-commit-action@v7
       with:
         commit_message: Update scraped_data.json
