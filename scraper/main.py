@@ -6,7 +6,7 @@ import threading
 import time
 import sys
 
-monkrus_url = "https://w17.monkrus.ws/"
+monkrus_url = "https://w18.monkrus.ws/"
 
 def scrape_links(url):
     """Scrapes links from a given URL, handling errors."""
